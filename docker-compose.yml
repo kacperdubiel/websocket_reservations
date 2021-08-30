@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  #node
+  node-service:
+    build: ./backend
+    command: npm run start
+    container_name: node-container
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/var/www/project
