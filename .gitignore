@@ -1,2 +1,3 @@
 # Project exclude paths
 /backend/node_modules/
+/backend/redis/data/
