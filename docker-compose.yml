@@ -17,6 +17,8 @@ services:
       - ./backend:/var/www/project
     networks:
       - main-network
+    depends_on:
+      - redis-service
 
   #redis
   redis-service:

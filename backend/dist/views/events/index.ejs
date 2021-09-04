@@ -1,0 +1,27 @@
+<%- include('../header') -%>
+<div class="container mt-5">
+    <h1>Wydarzenia!</h1><br/>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Nazwa</th>
+                <th scope="col">Liczba sektorów</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% events.forEach((event) => { %>
+                <tr>
+                    <td><%= event.id %></td>
+                    <td><%= event.name %></td>
+                    <td><%= event.numberOfSectors %></td>
+                    <td><a href="events/<%= event.id %>" class="btn btn-primary">Szczegóły</a></td>
+                </tr>
+            <%  }) %>
+        </tbody>
+    </table>
+
+</div>
+<%- include('../footer') -%>

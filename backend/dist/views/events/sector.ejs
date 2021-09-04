@@ -1,0 +1,37 @@
+<%- include('../header') -%>
+<div class="container mt-5">
+    <a href="/events/<%= event.id %>" class="btn btn-primary">Powrót</a><br/><br/>
+    <h1><%= event.name %></h1><hr/>
+    <h2><%= sector.name %></h2><br/>
+
+    <table>
+        <tbody>
+            <tr>
+            <% for(var i = 1; i <= sector.numberOfPlaces; i++){ %>
+                <% if(i % numberOfColumns === 1) { %>
+                    </tr>
+                    <td>
+                <% } %>
+
+                <% if(places.filter(
+                    p => p.placeId === i.toString() && p.clientId === clientId
+                ).length > 0) { %>
+                    <td>
+                        <div class="btn btn-danger" style="min-width: 45px; cursor: pointer"><%= i %></div>
+                    </td>
+                <% } else if(places.filter(p => p.placeId === i.toString()).length > 0) { %>
+                    <td>
+                        <div class="btn btn-secondary disabled" style="min-width: 45px"><%= i %></div>
+                    </td>
+                <% } else { %>
+                    <td>
+                        <div class="btn btn-success" style="min-width: 45px; cursor: pointer"><%= i %></div>
+                    </td>
+                <% } %>
+            <% } %>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+<%- include('../footer') -%>

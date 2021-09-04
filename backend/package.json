@@ -2,7 +2,7 @@
   "name": "websocket_reservations",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/server.js",
   "watch": {
     "devstart": {
       "patterns": [
