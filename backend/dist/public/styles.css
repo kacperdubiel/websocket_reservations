@@ -1,0 +1,7 @@
+.place {
+    min-width: 45px;
+}
+
+.clickable {
+    cursor: pointer;
+}

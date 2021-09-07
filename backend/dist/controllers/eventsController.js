@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sectorDetails = exports.eventDetails = exports.index = void 0;
 const event_1 = require("../models/event");
 const sector_1 = require("../models/sector");
-const place_1 = require("../models/place");
 const index = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const events = yield (0, event_1.getEvents)(0, 10);
     res.render("events", { events });
@@ -30,10 +29,9 @@ const sectorDetails = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const sectorId = req.params.sectorId;
     const event = yield (0, event_1.getEvent)(eventId);
     const sector = yield (0, sector_1.getSector)(eventId, sectorId);
-    const places = yield (0, place_1.getPlaces)(eventId, sectorId, 0, -1);
+    // const places = await getPlaces(eventId, sectorId, 0, -1);
     const numberOfColumns = 8;
-    const clientId = "abc123";
-    res.render("events/sector", { event, sector, places, numberOfColumns, clientId });
+    res.render("events/sector", { event, sector, numberOfColumns });
 });
 exports.sectorDetails = sectorDetails;
 //# sourceMappingURL=eventsController.js.map

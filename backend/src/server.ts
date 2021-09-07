@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
 import path from "path";
+import http from "http";
+import { WSServer } from "./websocket/websocketServer";
 import * as redisUtils from "./redis/redisUtils";
 
 import { indexRouter } from "./routes/index";
@@ -10,7 +12,12 @@ import { placesRouter } from "./routes/places";
 dotenv.config();
 const serverPort = process.env.SERVER_PORT;
 
+// Express server
 const app = express();
+const server = http.createServer(app);
+
+// Websocket server
+const wsServer = new WSServer(server);
 
 // redisUtils.initializeData();
 
@@ -24,8 +31,10 @@ app.use('/', indexRouter);
 app.use('/', eventsRouter);
 app.use('/', placesRouter);
 
+app.use('/static', express.static(path.join(__dirname, 'public')));
+
 // Server listen
-const server = app.listen(serverPort, () => {
+server.listen(serverPort, () => {
     console.log( `server started at http://localhost:${ serverPort }` );
 } );
 

@@ -7,12 +7,29 @@ import {redisClient} from "../redis/redisUtils";
 export const REDIS_PLACE_PREFIX = "place-";
 export const REDIS_PLACES_LIST_KEY = "places";
 
-export function getPlaceKey(eventId: number, sectorId: number, placeId: number) {
+function getPlaceKey(eventId: number, sectorId: number, placeId: number) {
     return getSectorKey(eventId, sectorId) + ":" + REDIS_PLACE_PREFIX + placeId;
 }
 
 function getPlacesListKey(eventId: number, sectorId: number) {
     return getSectorKey(eventId, sectorId) + ":" + REDIS_PLACES_LIST_KEY;
+}
+
+export async function getPlace(eventId: number, sectorId: number, placeId: number) {
+    if (! await redisUtils.existsKey(getEventKey(eventId))) {
+        throw new Error('Event with id \'' + eventId + '\' does not exist!');
+    }
+
+    if (! await redisUtils.existsKey(getSectorKey(eventId, sectorId))) {
+        throw new Error('Sector with id \'' + sectorId + '\' does not exist in event \'' + eventId + '\'!');
+    }
+
+    const placeKey = getPlaceKey(eventId, sectorId, placeId);
+    if (!await redisUtils.existsKey(placeKey)) {
+        throw new Error('Place with id \'' + placeId + '\' does not exist in event \'' + eventId + '\', sector \'' + sectorId + '\'!');
+    }
+
+    return await redisUtils.getValue(placeKey);
 }
 
 export async function getPlaces(eventId: number, sectorId: number, fromId: number, toId: number) {
@@ -43,6 +60,37 @@ export async function getPlaces(eventId: number, sectorId: number, fromId: numbe
     return places;
 }
 
+export async function getClientPlaces(eventId: number, sectorId: number, clientId: string) {
+    if (! await redisUtils.existsKey(getEventKey(eventId))) {
+        throw new Error('Event with id \'' + eventId + '\' does not exist!');
+    }
+
+    if (! await redisUtils.existsKey(getSectorKey(eventId, sectorId))) {
+        throw new Error('Sector with id \'' + sectorId + '\' does not exist in event \'' + eventId + '\'!');
+    }
+
+    const clientPlaces = Array();
+    const placesListKey = getPlacesListKey(eventId, sectorId);
+    if (! await redisUtils.existsKey(placesListKey)) {
+        return clientPlaces;
+    }
+
+    const placeKeys = await redisUtils.getFromList(placesListKey, 0, -1);
+
+    for(const placeKey of placeKeys){
+        const placeClientId = await redisUtils.getValue(placeKey);
+
+        if(placeClientId === clientId) {
+            const place = {
+                placeId: placeKey.split(REDIS_PLACE_PREFIX).pop()
+            }
+            clientPlaces.push(place);
+        }
+    }
+
+    return clientPlaces;
+}
+
 export async function setPlace(eventId: number, sectorId: number, placeId: number, clientId: string) {
     if (! await redisUtils.existsKey(getEventKey(eventId))) {
         throw new Error('Event with id \'' + eventId + '\' does not exist!');
@@ -62,6 +110,7 @@ export async function setPlace(eventId: number, sectorId: number, placeId: numbe
         throw new Error('Place id \'' + placeId + '\' is not valid!');
     }
 
+    try{
     redisClient
         .multi()
         .set(placeKey, clientId, 'NX')
@@ -71,6 +120,10 @@ export async function setPlace(eventId: number, sectorId: number, placeId: numbe
             if (!replies[0])
                 throw new Error("Place already taken!");
         });
+    } catch (e) {
+        throw new Error("Place already taken!!!");
+    }
+
 }
 
 export async function removePlace(eventId: number, sectorId: number, placeId: number) {
@@ -103,7 +156,6 @@ export async function removePlace(eventId: number, sectorId: number, placeId: nu
 
 async function isValidPlace(eventId: number, sectorId: number, placeId: number) {
     const sectorKey = getSectorKey(eventId, sectorId);
-    const placesInSector = await redisUtils.getFieldFromHash(sectorKey, Sector.REDIS_FIELD_NUMBER_OF_PLACES);
-
+    const placesInSector = Number(await redisUtils.getFieldFromHash(sectorKey, Sector.REDIS_FIELD_NUMBER_OF_PLACES));
     return placeId > 0 && placeId <= placesInSector;
 }

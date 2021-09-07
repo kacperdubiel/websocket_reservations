@@ -22,10 +22,9 @@ export const sectorDetails = async (req: any, res: any) => {
 
     const event = await getEvent(eventId);
     const sector = await getSector(eventId, sectorId);
-    const places = await getPlaces(eventId, sectorId, 0, -1);
+    // const places = await getPlaces(eventId, sectorId, 0, -1);
 
     const numberOfColumns = 8;
-    const clientId = "abc123";
 
-    res.render("events/sector", { event, sector, places, numberOfColumns, clientId });
+    res.render("events/sector", { event, sector, numberOfColumns });
 };
